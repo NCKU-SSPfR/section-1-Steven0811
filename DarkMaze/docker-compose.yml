@@ -19,6 +19,7 @@ services:
       - SONAR_JDBC_URL=jdbc:postgresql://db:5432/sonarqube
       - SONAR_JDBC_USERNAME=sonar
       - SONAR_JDBC_PASSWORD=sonar
+      - SONAR_FORCE_BUILTIN_PLUGINS=false
     networks:
       - sonar-network
     depends_on:
@@ -53,8 +54,11 @@ services:
       -Dsonar.inclusions=**
       -Dsonar.host.url=http://sonarqube:9000
       -Dsonar.login=${SONAR_TOKEN}
+      -Dsonar.language=py
+      -Dsonar.python.version=3
       -Dsonar.python.pylint.reportPaths=/reports/pylint-report.json
       -Dsonar.python.flake8.reportPaths=/reports/flake8-report.json
+      -Dsonar.qualitygate.wait=true
     networks:
       - sonar-network
 
