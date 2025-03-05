@@ -17,6 +17,13 @@ jobs:
       git_score: ${{ steps.githw.outputs.git_score }}
       student_id: ${{ steps.githw.outputs.student_id }}
     steps:
+      - name: Cleanup build folder
+        run: |
+            ls -la ./
+            rm -rf ./* || true
+            rm -rf ./.??* || true
+            ls -la ./
+            
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -47,6 +54,13 @@ jobs:
     outputs:
       docker_score: ${{ steps.dockerhw.outputs.docker_score }}
     steps:
+      - name: Cleanup build folder
+        run: |
+            ls -la ./
+            rm -rf ./* || true
+            rm -rf ./.??* || true
+            ls -la ./
+    
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -102,6 +116,13 @@ jobs:
     outputs:
       cleancode_score: ${{ steps.cleancode.outputs.cleancode_score }}
     steps:
+      - name: Cleanup build folder
+        run: |
+            ls -la ./
+            rm -rf ./* || true
+            rm -rf ./.??* || true
+            ls -la ./
+    
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -130,6 +151,13 @@ jobs:
     outputs:
       tools_score: ${{ steps.toolshw.outputs.tools_score }}
     steps:
+      - name: Cleanup build folder
+        run: |
+            ls -la ./
+            rm -rf ./* || true
+            rm -rf ./.??* || true
+            ls -la ./
+    
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -225,6 +253,13 @@ jobs:
     outputs:
       unittests_score: ${{ steps.assign_score.outputs.unittests_score }}
     steps:
+      - name: Cleanup build folder
+        run: |
+            ls -la ./
+            rm -rf ./* || true
+            rm -rf ./.??* || true
+            ls -la ./
+    
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -338,6 +373,13 @@ jobs:
             exit 1
           fi
 
+      - name: Cleanup build folder
+        run: |
+            ls -la ./
+            rm -rf ./* || true
+            rm -rf ./.??* || true
+            ls -la ./
+
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -435,6 +477,13 @@ jobs:
             echo "Not yet passed the first part."
             exit 1
           fi
+
+      - name: Cleanup build folder
+        run: |
+            ls -la ./
+            rm -rf ./* || true
+            rm -rf ./.??* || true
+            ls -la ./
 
       - name: Checkout code
         uses: actions/checkout@v3
@@ -610,6 +659,13 @@ jobs:
             exit 1
           fi
 
+      - name: Cleanup build folder
+        run: |
+            ls -la ./
+            rm -rf ./* || true
+            rm -rf ./.??* || true
+            ls -la ./
+
       - name: Checkout code
         uses: actions/checkout@v3
 
@@ -690,6 +746,13 @@ jobs:
     needs: [check-githw, check-dockerhw, check-cleancodehw, check-toolshw, check-unittesthw, check-commit-message, check-darkmaze-testinghw, check-darkmaze-dockerhw, check-darkmaze-tools]
     permissions: write-all
     steps:
+      - name: Cleanup build folder
+        run: |
+            ls -la ./
+            rm -rf ./* || true
+            rm -rf ./.??* || true
+            ls -la ./
+    
       - name: Checkout code
         uses: actions/checkout@v3
 
