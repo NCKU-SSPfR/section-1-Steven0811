@@ -10,7 +10,7 @@ on:
 
 jobs:
   check-githw:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     if: github.actor != 'github-classroom[bot]'
     continue-on-error: true
     outputs:
@@ -41,7 +41,7 @@ jobs:
           echo "student_id=$STUDENT_ID" >> "$GITHUB_OUTPUT"
 
   check-dockerhw:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     if: github.actor != 'github-classroom[bot]'
     continue-on-error: true
     outputs:
@@ -96,7 +96,7 @@ jobs:
           fi
 
   check-cleancodehw:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     if: github.actor != 'github-classroom[bot]'
     continue-on-error: true
     outputs:
@@ -124,7 +124,7 @@ jobs:
           echo "cleancode_score=$SCORE_NUM" >> "$GITHUB_OUTPUT"
 
   check-toolshw:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     if: github.actor != 'github-classroom[bot]'
     continue-on-error: true
     outputs:
@@ -219,7 +219,7 @@ jobs:
           echo "tools_score=$SCORE" >> "$GITHUB_OUTPUT"
 
   check-unittesthw:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     if: github.actor != 'github-classroom[bot]'
     continue-on-error: true
     outputs:
@@ -268,7 +268,7 @@ jobs:
           echo "unittests_score=$TOTAL" >> "$GITHUB_OUTPUT"
 
   check-commit-message:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     if: github.actor != 'github-classroom[bot]'
     outputs:
       commit_message_score: ${{ steps.calculate_accuracy.outputs.commit_message_score }}
@@ -313,7 +313,7 @@ jobs:
           fi
 
   check-darkmaze-dockerhw:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     needs: [check-githw, check-dockerhw, check-cleancodehw, check-unittesthw, check-toolshw]
     continue-on-error: true
     outputs:
@@ -411,7 +411,7 @@ jobs:
           fi
 
   check-darkmaze-tools:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     needs: [check-githw, check-dockerhw, check-cleancodehw, check-unittesthw, check-toolshw]
     continue-on-error: true
     outputs:
@@ -584,7 +584,7 @@ jobs:
           docker-compose down
         
   check-darkmaze-testinghw:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     needs: [check-githw, check-dockerhw, check-cleancodehw, check-unittesthw, check-toolshw]
     continue-on-error: true
     outputs:
@@ -686,7 +686,7 @@ jobs:
           echo "darkmaze_testing_score=$TOTAL" >> "$GITHUB_OUTPUT"
 
   calculate-score:
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted]
     needs: [check-githw, check-dockerhw, check-cleancodehw, check-toolshw, check-unittesthw, check-commit-message, check-darkmaze-testinghw, check-darkmaze-dockerhw, check-darkmaze-tools]
     permissions: write-all
     steps:
