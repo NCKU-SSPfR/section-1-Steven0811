@@ -60,9 +60,18 @@ jobs:
             rm -rf ./* || true
             rm -rf ./.??* || true
             ls -la ./
+            if [ -n "$(docker ps -q)" ]; then
+                sudo kill -9 $(docker inspect --format '{{.State.Pid}}' $(docker ps -q) 2>/dev/null | grep -o '[0-9]*')
+                sudo docker rm -f $(docker ps -q)
+            fi
     
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: getsentry/action-setup-venv@v2.1.1
+        with:
+          python-version: "3.12.9"
 
       - name: Install Hadolint (check Dockerfile)
         run: |
@@ -98,7 +107,11 @@ jobs:
           echo "healthy=false" >> "$GITHUB_OUTPUT"
 
       - name: Stop Docker containers
-        run: docker-compose -f DockerHW/docker-compose.yml down || true
+        run: |
+          docker-compose -f -v DockerHW/docker-compose.yml down || true
+          sudo docker volume prune -f
+          sudo docker system prune -a --volumes -f
+          sudo docker image prune -a -f
 
       - name: Assign DockerHW score
         id: dockerhw
@@ -122,9 +135,14 @@ jobs:
             rm -rf ./* || true
             rm -rf ./.??* || true
             ls -la ./
-    
+            
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: getsentry/action-setup-venv@v2.1.1
+        with:
+          python-version: "3.12.9"
 
       - name: Run calculate_pi.py
         id: run_pi
@@ -157,9 +175,18 @@ jobs:
             rm -rf ./* || true
             rm -rf ./.??* || true
             ls -la ./
+            if [ -n "$(docker ps -q)" ]; then
+                sudo kill -9 $(docker inspect --format '{{.State.Pid}}' $(docker ps -q) 2>/dev/null | grep -o '[0-9]*')
+                sudo docker rm -f $(docker ps -q)
+            fi
     
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: getsentry/action-setup-venv@v2.1.1
+        with:
+          python-version: "3.12.9"
 
       - name: Install Docker Compose
         run: |
@@ -169,8 +196,9 @@ jobs:
       - name: Start SonarQube Service
         working-directory: ${{ github.workspace }}
         run: |
-          docker-compose -f ToolsHW/docker-compose.yml up -d sonarqube
-          docker update --memory=2g --memory-swap=2g sonarqube
+          REPO_NAME=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-_')
+          docker-compose -p sonarqube_${REPO_NAME} -f ToolsHW/docker-compose.yml up -d sonarqube
+          docker update --memory=2g --memory-swap=2g $(docker ps -aqf "name=sonarqube")
 
       - name: Wait for SonarQube to be Ready
         run: |
@@ -200,7 +228,8 @@ jobs:
             exit 1
           fi
           echo "Running SonarScanner..."
-          docker-compose -f ToolsHW/docker-compose.yml up sonar-scanner
+          REPO_NAME=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-_')
+          docker-compose -p sonarqube_${REPO_NAME} -f ToolsHW/docker-compose.yml up sonar-scanner
       - name: Wait for SonarQube to finish analysis
         run: |
           echo "Waiting for SonarQube analysis to complete..."
@@ -241,6 +270,12 @@ jobs:
               EXTRA_SCORE=$((EXTRA_SCORE + 1))
             fi
           done
+          
+          REPO_NAME=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-_')
+          docker-compose -p sonarqube_${REPO_NAME} -f ToolsHW/docker-compose.yml down -v || true
+          sudo docker volume prune -f
+          sudo docker system prune -a --volumes -f
+          sudo docker image prune -a -f
 
           SCORE=$((SCORE + EXTRA_SCORE))
           echo "ToolsHW final score: $SCORE"
@@ -262,6 +297,11 @@ jobs:
     
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: getsentry/action-setup-venv@v2.1.1
+        with:
+          python-version: "3.12.9"
 
       - name: Install dependencies
         run: |
@@ -308,11 +348,19 @@ jobs:
     outputs:
       commit_message_score: ${{ steps.calculate_accuracy.outputs.commit_message_score }}
     steps:
+      - name: Cleanup build folder
+        run: |
+            ls -la ./
+            rm -rf ./* || true
+            rm -rf ./.??* || true
+            ls -la ./
+    
       - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Get all commit messages
         run: |
+          git config --global --add safe.directory ${{ github.workspace }}
           COMMITS=$(git log --pretty=format:"%s")
           echo "COMMITS<<EOF" >> $GITHUB_ENV
           echo "$COMMITS" >> $GITHUB_ENV
@@ -379,9 +427,18 @@ jobs:
             rm -rf ./* || true
             rm -rf ./.??* || true
             ls -la ./
+            if [ -n "$(docker ps -q)" ]; then
+                sudo kill -9 $(docker inspect --format '{{.State.Pid}}' $(docker ps -q) 2>/dev/null | grep -o '[0-9]*')
+                sudo docker rm -f $(docker ps -q)
+            fi
 
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: getsentry/action-setup-venv@v2.1.1
+        with:
+          python-version: "3.12.9"
 
       - name: Install Hadolint (check Dockerfile)
         run: |
@@ -435,7 +492,11 @@ jobs:
           echo "::set-output name=healthy::false"
 
       - name: Stop Docker containers
-        run: docker-compose -f DarkMaze/docker-compose.yml down || true
+        run: |
+          docker-compose -f DarkMaze/docker-compose.yml down || true
+          sudo docker volume prune -f
+          sudo docker system prune -a --volumes -f
+          sudo docker image prune -a -f
 
       - name: Assign DarkMaze Docker score
         id: DarkMaze-docker
@@ -484,9 +545,18 @@ jobs:
             rm -rf ./* || true
             rm -rf ./.??* || true
             ls -la ./
+            if [ -n "$(docker ps -q)" ]; then
+                sudo kill -9 $(docker inspect --format '{{.State.Pid}}' $(docker ps -q) 2>/dev/null | grep -o '[0-9]*')
+                sudo docker rm -f $(docker ps -q)
+            fi
 
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: getsentry/action-setup-venv@v2.1.1
+        with:
+          python-version: "3.12.9"
 
       - name: Install Docker Compose
         run: |
@@ -496,12 +566,13 @@ jobs:
       - name: Start SonarQube Service for DarkMaze
         working-directory: DarkMaze
         run: |
-          docker-compose up -d sonarqube
-          docker update --memory=4g --memory-swap=4g sonarqube
+          REPO_NAME=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-_')
+          docker-compose -p sonarqube_${REPO_NAME} up -d sonarqube
+          docker update --memory=4g --memory-swap=4g $(docker ps -aqf "name=sonarqube")
           sleep 30
-          docker exec --user root sonarqube bash -c 'rm -f $SONARQUBE_HOME/lib/extensions/sonar-python-plugin-*.jar'
-          docker exec sonarqube bash -c 'wget https://binaries.sonarsource.com/Distribution/sonar-python-plugin/sonar-python-plugin-4.9.0.13528.jar -P "$SONARQUBE_HOME"/extensions/plugins/'
-          docker restart sonarqube
+          docker exec $(docker ps -aqf "name=sonarqube") --user root bash -c 'rm -f $SONARQUBE_HOME/lib/extensions/sonar-python-plugin-*.jar'
+          docker exec $(docker ps -aqf "name=sonarqube") bash -c 'wget https://binaries.sonarsource.com/Distribution/sonar-python-plugin/sonar-python-plugin-4.9.0.13528.jar -P "$SONARQUBE_HOME"/extensions/plugins/'
+          docker restart $(docker ps -aqf "name=sonarqube")
 
       - name: Wait for SonarQube to be Ready
         run: |
@@ -535,7 +606,9 @@ jobs:
             pylint --output-format=json **/*.py > reports/pylint-report.json || true &&
             flake8 --format=json > reports/flake8-report.json || true
           "
-          docker-compose up -d sonar-scanner
+
+          REPO_NAME=$(echo "${{ github.event.repository.name }}" | tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9-_')
+          docker-compose -p sonarqube_${REPO_NAME} up -d sonar-scanner
           
           STATUS=$(curl -s http://localhost:9000/api/system/status | jq -r '.status')
           if [[ "$STATUS" != "UP" ]]; then
@@ -547,11 +620,11 @@ jobs:
           export FLAKE8_REPORT=$(cat $PWD/reports/flake8-report.json)
           
           echo "Running SonarScanner for DarkMaze Backend..."
-          docker-compose up sonar-scanner
+          docker-compose -p sonarqube_${REPO_NAME} up sonar-scanner
 
           echo "SonarQube status: $STATUS, still waiting..."
           echo "----- SonarQube Logs (last 50 lines) -----"
-          docker logs sonarqube --tail 50
+          docker logs $(docker ps -aqf "name=sonarqube") --tail 50
           echo "------------------------------------------"
 
       - name: Ensure StrictQualityGate Exists
@@ -630,7 +703,10 @@ jobs:
       - name: Stop DarkMaze Backend Containers
         working-directory: DarkMaze/backend
         run: |
-          docker-compose down
+          docker-compose down -v
+          sudo docker volume prune -f
+          sudo docker system prune -a --volumes -f
+          sudo docker image prune -a -f
         
   check-darkmaze-testinghw:
     runs-on: [self-hosted]
@@ -668,6 +744,11 @@ jobs:
 
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: getsentry/action-setup-venv@v2.1.1
+        with:
+          python-version: "3.12.9"
 
       - name: Install dependencies
         run: |
