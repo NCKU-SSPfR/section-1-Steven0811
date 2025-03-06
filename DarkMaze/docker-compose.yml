@@ -35,7 +35,10 @@ services:
       pip3 install --no-cache-dir pylint flake8 &&
       mkdir -p /reports &&
       pylint --output-format=json /usr/src/**/*.py > /reports/pylint-report.json || true &&
-      flake8 --format=json /usr/src > /reports/flake8-report.json || true"
+
+      flake8 --format=json /usr/src > /reports/flake8-report.json || true
+    networks:
+      - sonar-network
 
   sonar-scanner:
     image: sonarsource/sonar-scanner-cli
@@ -69,7 +72,11 @@ services:
     build: ./frontend
     ports:
       - "8088:8088"
+    volumes:
+      - ./frontend:/app
     command: uvicorn src.main:app --host "0.0.0.0" --port 8088 --reload
+    networks:
+      - sonar-network
 
   backend:
     # TODO:
@@ -79,7 +86,11 @@ services:
     build: ./backend
     ports:
       - "8000:8000"
+    volumes:
+      - ./backend:/app
     command: uvicorn src.main:app --host "0.0.0.0" --port 8000 --reload
+    networks:
+      - sonar-network
 
 networks:
   sonar-network:

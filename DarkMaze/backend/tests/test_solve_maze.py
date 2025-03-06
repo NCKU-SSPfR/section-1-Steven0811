@@ -19,6 +19,7 @@ async def login_request():
 
 async def reset_request():
     """Reset Game state"""
+    global game_state
 
     async with httpx.AsyncClient() as client:
         response = await client.get(RESET_URL)
@@ -29,6 +30,7 @@ async def reset_request():
 
 async def move_request(dir):
     """Simulates a frontend move request."""
+    global game_state
 
     payload = {"username": USERNAME, "direction": dir}
     
@@ -56,5 +58,19 @@ async def test_solver():
     await reset_request()
     for i in range(5):
         await move_request("down")
-    #print(game_state)
+    await move_request("right")
+    await move_request("down")
+    for i in range(2):
+        await move_request("right")
+    for i in range(4):
+        await move_request("up")
+    for i in range(2):
+        await move_request("right")
+    await move_request("down")
+    for i in range(2):
+        await move_request("right")
+    await move_request("down")
+    await move_request("right")
+    await move_request("down")
+    # print(game_state)
     assert game_state["health"] == 666
