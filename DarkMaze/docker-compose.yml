@@ -30,15 +30,13 @@ services:
     volumes:
       - ./backend:/usr/src
       - ./reports:/reports
-    command: 
-      - sh
-      - -c
-      - |
-        apt-get update && apt-get install -y python3 python3-pip &&
-        pip3 install --no-cache-dir pylint flake8 &&
-        mkdir -p /reports &&
-        pylint --output-format=json /usr/src/**/*.py > /reports/pylint-report.json || true &&
-        flake8 --format=json /usr/src > /reports/flake8-report.json || true
+    command: >
+      sh -c "
+      apt-get update && apt-get install -y python3 python3-pip &&
+      pip3 install --no-cache-dir pylint flake8 &&
+      mkdir -p /reports &&
+      pylint --output-format=json /usr/src/**/*.py > /reports/pylint-report.json || true &&
+      flake8 --format=json /usr/src > /reports/flake8-report.json || true"
 
   sonar-scanner:
     image: sonarsource/sonar-scanner-cli
@@ -64,29 +62,31 @@ services:
     networks:
       - sonar-network
 
-  frontend: 
-    # TODO:
-    # 1. Create a container using the frontend image.  
-    # 2. Map the files in the frontend folder to the /app folder inside the container.  
-    # 3. Map port 8088 in the container to port 8088 on the host machine.
-    build: ./frontend
-    ports:
-      - "8088:8088"
-    volumes:
-      - ./frontend:/app
-    command: uvicorn src.main:app --host "0.0.0.0" --port 8088 --reload
-
   backend:
-    # TODO:
-    # 1. Create a container using the backend image.  
-    # 2. Map the files in the backend folder to the /app folder inside the container.  
-    # 3. Map port 8000 in the container to port 8000 on the host machine.
     build: ./backend
+    volumes:
+      - ./backend/src:/app/src
     ports:
       - "8000:8000"
-    volumes:
-      - ./backend:/app
+    depends_on:
+      - db
+    networks:
+      - sonar-network
+    restart: always
     command: uvicorn src.main:app --host "0.0.0.0" --port 8000 --reload
 
+  frontend:
+    build: ./frontend
+    volumes:
+      - ./frontend/src:/app/src
+    ports:
+      - "8088:8088"
+    depends_on:
+      - backend
+    networks:
+      - sonar-network
+    restart: always
+    command: uvicorn src.main:app --host "0.0.0.0" --port 8088 --reload
+    
 networks:
-  sonar-network: 
+  sonar-network:
