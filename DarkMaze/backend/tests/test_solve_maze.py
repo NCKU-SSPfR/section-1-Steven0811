@@ -47,7 +47,7 @@ async def test_integration():
     #print(game_state)
     await reset_request()
     #print(game_state)
-    for i in range(5):
+    for _ in range(5):
         await move_request("down")
         #print(game_state)
     assert game_state["current_position"] == [1,5]
@@ -56,18 +56,18 @@ async def test_integration():
 async def test_solver():
     await login_request()
     await reset_request()
-    for i in range(5):
+    for _ in range(5):
         await move_request("down")
     await move_request("right")
     await move_request("down")
-    for i in range(2):
+    for _ in range(2):
         await move_request("right")
-    for i in range(4):
+    for _ in range(4):
         await move_request("up")
-    for i in range(2):
+    for _ in range(2):
         await move_request("right")
     await move_request("down")
-    for i in range(2):
+    for _ in range(2):
         await move_request("right")
     await move_request("down")
     await move_request("right")
