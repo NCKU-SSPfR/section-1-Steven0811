@@ -31,12 +31,15 @@ services:
       - ./backend:/usr/src
       - ./reports:/reports
     command: >
-      sh -c "
-      apt-get update && apt-get install -y python3 python3-pip &&
-      pip3 install --no-cache-dir pylint flake8 &&
-      mkdir -p /reports &&
-      pylint --output-format=json /usr/src/**/*.py > /reports/pylint-report.json || true &&
-      flake8 --format=json /usr/src > /reports/flake8-report.json || true
+      command:
+      - sh
+      - -c
+      - |
+        apt-get update && apt-get install -y python3 python3-pip &&
+        pip3 install --no-cache-dir pylint flake8 &&
+        mkdir -p /reports &&
+        pylint --output-format=json /usr/src/**/*.py > /reports/pylint-report.json || true &&
+        flake8 --format=json /usr/src > /reports/flake8-report.json || true
 
   sonar-scanner:
     image: sonarsource/sonar-scanner-cli

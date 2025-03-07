@@ -6,26 +6,26 @@ def _parse_map(map_string, map_size, reversal_nodes=[]):
     width, height = map_size
     filtered_chars = re.sub(r'[^a-zA-Z]', '', map_string)
     
-    QQ = [bin(ord(c))[2:].zfill(8) for c in filtered_chars]
+    binary_list = [bin(ord(c))[2:].zfill(8) for c in filtered_chars]
     
-    Dora_friend = []
-    for Q in QQ:
-        first_half = int(Q[:4], 2)
-        second_half = int(Q[4:], 2)
-        Dora_friend.extend([first_half % 2, second_half % 2])
+    flat_map = []
+    for binary in binary_list:
+        first_half = int(binary[:4], 2)
+        second_half = int(binary[4:], 2)
+        flat_map.extend([first_half % 2, second_half % 2])
     
-    while len(Dora_friend) < width * height:
-        Dora_friend.append(0)
+    while len(flat_map) < width * height:
+        flat_map.append(0)
     
-    Dora_friend = Dora_friend[:width * height]
+    flat_map = flat_map[:width * height]
     
-    swiper = np.array(Dora_friend).reshape((height, width))
+    grid = np.array(flat_map).reshape((height, width))
     
     for x, y in reversal_nodes:
         if 0 <= x < height and 0 <= y < width:
-            swiper[y, x] = 1 - swiper[y, x]
+            grid[y, x] = 1 - grid[y, x]
     
-    return swiper
+    return grid
 
 def _load_maze_from_json(maze_level_name):
     with open("./src/game/maze_level/" + maze_level_name + ".json", 'r', encoding='utf-8') as f:
@@ -52,6 +52,7 @@ def hit_obstacle(position, maze_level_name):
     x, y = position
     maze_data = _load_maze_from_json(maze_level_name)  # You can replace this with the actual level you're working with
     grid = maze_data["map"]
+    #print(grid, position)
     
     # Check if the position is within the bounds of the grid
     if 0 <= x < grid.shape[0] and 0 <= y < grid.shape[1]:

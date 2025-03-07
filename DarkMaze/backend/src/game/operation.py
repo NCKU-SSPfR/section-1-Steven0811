@@ -6,7 +6,6 @@ def move_location(game_state, direction):
         return game_state
     
     x, y = game_state["current_position"]
-    print(x, y)
     
     # Update position based on direction
     if direction == "up" and y > 0:
